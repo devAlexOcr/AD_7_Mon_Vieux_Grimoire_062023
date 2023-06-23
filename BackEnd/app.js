@@ -21,7 +21,7 @@ app.use((req, res, next) => { // ajout des headers sur l'objet response
   next();
 });
 
-app.get('/api/book', bookRoutes);
-app.get('/api/auth', userRoutes);
+app.use('/api/books', bookRoutes);
+app.use('/api/auth', userRoutes);
 
 module.exports = app;
