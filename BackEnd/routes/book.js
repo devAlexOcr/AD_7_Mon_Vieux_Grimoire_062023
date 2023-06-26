@@ -6,10 +6,10 @@ const bookCtrl = require ('../controllers/book');
 const router = express.Router();
 
 
-router.post('/', auth, multer, bookCtrl.createThing); 
-router.put('/:id', auth, multer, bookCtrl.modifyThing);  
-router.delete('/:id', auth, bookCtrl.deleteThing);  
-router.get('/:id', auth, bookCtrl.getOneThing);
-router.get('/', auth, bookCtrl.getAllThing);
+router.post('/', auth, multer, bookCtrl.createBook); 
+router.put('/:id', auth, multer, bookCtrl.modifyBook);  
+router.delete('/:id', auth, bookCtrl.deleteBook);  
+router.get('/:id', bookCtrl.getOneBook);
+router.get('/', bookCtrl.getAllBook);
 
 module.exports = router;
