@@ -5,11 +5,19 @@ exports.rating = (req, res, next) => {
   Book.findOne({_id: req.params.id})
   .then((book) => {
       book.ratings.push(req.body)
-      res.status(200).json({message: 'objet modifié'})
-
-      Book.updateOne({_id: req.params.id}, {Book, ratings: book.ratings})
-      .then (() => res.status(200).json({message: 'objet modifié'}))
-      .catch(error => res.status(401).json({error}))
+      const ratings = book.ratings
+      function averageRating(ratings) {
+        let b = ratings.length,
+            c = 0, i;
+        for (i = 0; i < b; i++){
+          c += Number(ratings[i]);
+        }
+        return c/b;
+      }
+      res.status(200).json({message: 'ratings modifié'})
+        Book.updateOne({_id: req.params.id}, {Book, ratings: book.ratings})
+          .then (() => res.status(200).json({message: 'ratings enregistré'}))
+          .catch(error => res.status(401).json({error}));
   })
   .catch(error => res.status(404).json({error}));   
 };
