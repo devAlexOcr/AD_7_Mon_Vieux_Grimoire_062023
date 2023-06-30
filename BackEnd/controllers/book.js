@@ -1,6 +1,19 @@
 const Book = require('../models/Book.js')
 const fs = require('fs')
 
+exports.rating = (req, res, next) => {
+  Book.findOne({_id: req.params.id})
+  .then((book) => {
+      book.ratings.push(req.body)
+      res.status(200).json({message: 'objet modifié'})
+
+      Book.updateOne({_id: req.params.id}, {Book, ratings: book.ratings})
+      .then (() => res.status(200).json({message: 'objet modifié'}))
+      .catch(error => res.status(401).json({error}))
+  })
+  .catch(error => res.status(404).json({error}));   
+};
+
 exports.createBook = (req, res, next) => {  
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
@@ -10,8 +23,6 @@ exports.createBook = (req, res, next) => {
     userId: req.auth.userId,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   });
-  console.log(bookObject)
-  console.log(NewBook)
   NewBook.save()
     .then(() => res.status(201).json({message: 'Objet enregistre !'}))
     .catch(error => res.status(400).json({ error }));
@@ -26,7 +37,7 @@ exports.modifyBook = (req, res, next) => {
   Book.findOne({_id: req.params.id})
     .then((book) => {
       if (book.userId != req.auth.userId) {
-        res.status(400).json({messge: 'non autorisé'});
+        res.status(400).json({message: 'non autorisé'});
       } else {
         Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
         .then (() => res.status(200).json({message: 'objet modifié'}))

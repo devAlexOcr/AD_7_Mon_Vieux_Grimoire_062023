@@ -66,6 +66,7 @@ function SignIn({ setUser }) {
     } catch (err) {
       setNotification({ error: true, message: err.message });
       console.log('Some error occured during signing up: ', err);
+      
     } finally {
       setIsLoading(false);
     }
