@@ -3,24 +3,22 @@ const fs = require('fs')
 
 exports.rating = (req, res, next) => {
   Book.findOne({_id: req.params.id})
-  .then((book) => {
+    .then((book) => {
       book.ratings.push(req.body)
-      const ratings = book.ratings
-      function averageRating(ratings) {
-        let b = ratings.length,
-            c = 0, i;
-        for (i = 0; i < b; i++){
-          c += Number(ratings[i]);
-        }
-        return c/b;
-      }
-      res.status(200).json({message: 'ratings modifié'})
+      book.ratings.map(notes => console.log(notes.rating + notes.grade))
+
         Book.updateOne({_id: req.params.id}, {Book, ratings: book.ratings})
           .then (() => res.status(200).json({message: 'ratings enregistré'}))
           .catch(error => res.status(401).json({error}));
-  })
+    })
   .catch(error => res.status(404).json({error}));   
 };
+
+exports.bestrating = (req, res,next) => {
+  Book.find()
+  .then(books => res.status(200).json(books))
+  .catch(error => res.status(400).json({error})); 
+}
 
 exports.createBook = (req, res, next) => {  
   const bookObject = JSON.parse(req.body.book);
@@ -47,7 +45,7 @@ exports.modifyBook = (req, res, next) => {
       if (book.userId != req.auth.userId) {
         res.status(400).json({message: 'non autorisé'});
       } else {
-        Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
+        Book.updateOne({...bookObject, _id: req.params.id})
         .then (() => res.status(200).json({message: 'objet modifié'}))
         .catch(error => res.status(401).json({error}))
       }

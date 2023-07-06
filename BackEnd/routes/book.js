@@ -6,6 +6,7 @@ const bookCtrl = require ('../controllers/book');
 const router = express.Router();
 
 router.post('/:id/rating', auth, bookCtrl.rating);
+router.get('/bestrating', bookCtrl.bestrating);
 
 router.post('/', auth, multer, bookCtrl.createBook); 
 router.put('/:id', auth, multer, bookCtrl.modifyBook);  
