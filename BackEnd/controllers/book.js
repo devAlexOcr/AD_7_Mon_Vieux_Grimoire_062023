@@ -25,8 +25,8 @@ exports.rating = (req, res, next) => {
         return a + b;
       }
       let sum = notes.reduce(check);
-      let avg = sum / notes.length;
-
+      let avg = Math.round(sum / notes.length);
+      console.log(avg)
         Book.updateOne({_id: req.params.id}, {Book, ratings: book.ratings, averageRating: avg})
           .then (() => res.status(200).json({message: 'ratings enregistré'}))
           .catch(error => res.status(401).json({error}));
