@@ -65,7 +65,7 @@ exports.modifyBook = (req, res, next) => {
       if (book.userId != req.auth.userId) {
         res.status(400).json({message: 'non autorisé'});
       } else {
-        Book.updateOne({...bookObject, _id: req.params.id})
+        Book.updateOne({ _id: req.params.id}, {...bookObject, _id: req.params.id})
         .then (() => res.status(200).json({message: 'objet modifié'}))
         .catch(error => res.status(401).json({error}))
       }
