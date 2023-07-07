@@ -4,17 +4,37 @@ const fs = require('fs')
 exports.rating = (req, res, next) => {
   Book.findOne({_id: req.params.id})
     .then((book) => {
-      book.ratings.push(req.body)
-      book.ratings.map(notes => console.log(notes.rating + notes.grade))
 
-        Book.updateOne({_id: req.params.id}, {Book, ratings: book.ratings})
+      // ajout de la notation pour le livre 
+
+      book.ratings.push(req.body)
+
+      // recupération de l'ensemble des notes 
+
+      const notes = book.ratings.map(note => {
+        if ( note.grade == undefined){
+          return note.rating
+        } else {
+          return note.grade
+        }        
+      });
+
+      // Calcul de la note moyenne du livre
+
+      function check(a, b) {
+        return a + b;
+      }
+      let sum = notes.reduce(check);
+      let avg = sum / notes.length;
+
+        Book.updateOne({_id: req.params.id}, {Book, ratings: book.ratings, averageRating: avg})
           .then (() => res.status(200).json({message: 'ratings enregistré'}))
           .catch(error => res.status(401).json({error}));
     })
-  .catch(error => res.status(404).json({error}));   
+  .catch(error => res.status(404).json({ message : 'book non trouvé '}));   
 };
 
-exports.bestrating = (req, res,next) => {
+exports.bestrating = (req, res, next) => {
   Book.find()
   .then(books => res.status(200).json(books))
   .catch(error => res.status(400).json({error})); 
