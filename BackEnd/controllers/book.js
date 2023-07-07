@@ -37,13 +37,13 @@ exports.rating = (req, res, next) => {
 exports.bestrating = (req, res, next) => {
   Book.find()
   .then(books => {
- 
+    // tri des livre en fonction de la moyenne = classement min a max
     let sortBook = books.sort(function (a,b) {
       return a.averageRating - b.averageRating
     });
-
+    // reverse classement pour note max a min
     let bestBook = sortBook.reverse();
-
+    // selection des 3 premiers livre du classement
   res.status(200).json(bestBook.slice(0,3))
 })
   .catch(error => res.status(400).json({error})); 

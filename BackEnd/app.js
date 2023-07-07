@@ -5,8 +5,9 @@ const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
 // const helmet = require('helmet')
 
+require('dotenv').config()
 
-mongoose.connect('mongodb+srv://ADback:nie3eiRETJ82vNFJ@atlascluster.bzinuny.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect(`${process.env.MONGOOSE}`,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
