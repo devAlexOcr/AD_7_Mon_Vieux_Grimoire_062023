@@ -36,7 +36,16 @@ exports.rating = (req, res, next) => {
 
 exports.bestrating = (req, res, next) => {
   Book.find()
-  .then(books => res.status(200).json(books))
+  .then(books => {
+ 
+    let sortBook = books.sort(function (a,b) {
+      return a.averageRating - b.averageRating
+    });
+
+    let bestBook = sortBook.reverse();
+
+  res.status(200).json(bestBook.slice(0,3))
+})
   .catch(error => res.status(400).json({error})); 
 }
 

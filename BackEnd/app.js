@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const path = require('path');
 const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
+// const helmet = require('helmet')
+
 
 mongoose.connect('mongodb+srv://ADback:nie3eiRETJ82vNFJ@atlascluster.bzinuny.mongodb.net/?retryWrites=true&w=majority',
   { useNewUrlParser: true,
@@ -11,6 +13,7 @@ mongoose.connect('mongodb+srv://ADback:nie3eiRETJ82vNFJ@atlascluster.bzinuny.mon
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 const app = express();
+// app.use(helmet());
 app.use(express.json()); // = bodyParser intercepete toute les requeste avec un json et les met a disposition dans un req.body
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
