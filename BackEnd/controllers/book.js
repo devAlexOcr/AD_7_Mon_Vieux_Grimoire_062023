@@ -4,34 +4,36 @@ const fs = require('fs')
 exports.rating = (req, res, next) => {
   Book.findOne({_id: req.params.id})
     .then((book) => {
+      const NewRating = {
+        userId: req.auth.userId,
+        grade: req.body.rating
+      };
 
       // ajout de la notation pour le livre 
 
-      book.ratings.push(req.body)
+      book.ratings.push(NewRating)
 
       // recupération de l'ensemble des notes 
 
       const notes = book.ratings.map(note => {
-        if ( note.grade == undefined){
-          return note.rating
-        } else {
-          return note.grade
-        }        
-      });
+        return note.grade      
+        });
 
       // Calcul de la note moyenne du livre
-
+        // function callback pour caluler la somme de 2 nbres
       function check(a, b) {
         return a + b;
       }
       let sum = notes.reduce(check);
       let avg = Math.round(sum / notes.length);
-      console.log(avg)
-        Book.updateOne({_id: req.params.id}, {Book, ratings: book.ratings, averageRating: avg})
-          .then (() => res.status(200).json({message: 'ratings enregistré'}))
+      book.averageRating = avg
+
+      Book.updateOne({_id: req.params.id}, {ratings: book.ratings}, {averageRating: book.averageRating})
+          .then (() => res.status(200).json(book))
           .catch(error => res.status(401).json({error}));
     })
-  .catch(error => res.status(404).json({ message : 'book non trouvé '}));   
+    .catch(error => res.status(404).json({ message : 'book non trouvé '}));
+     
 };
 
 exports.bestrating = (req, res, next) => {
