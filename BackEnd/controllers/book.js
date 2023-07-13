@@ -4,6 +4,16 @@ const fs = require('fs')
 exports.rating = (req, res, next) => {
   Book.findOne({_id: req.params.id})
     .then((book) => {
+      // creation d'un tableau regroupant les differents users qui ont notés le livre
+      const userRated = book.ratings.map(verify => {
+        return verify.userId
+      });
+      
+      // permet de verifier la presence d'un utilisateur dans le tableau ratings et renvoie un boolean
+      const userVerify = userRated.includes(req.auth.userId)
+      console.log(userVerify)
+
+      if (userVerify == false) {
       const NewRating = {
         userId: req.auth.userId,
         grade: req.body.rating
@@ -31,6 +41,7 @@ exports.rating = (req, res, next) => {
       Book.updateOne({_id: req.params.id}, {ratings: book.ratings}, {averageRating: book.averageRating})
           .then (() => res.status(200).json(book))
           .catch(error => res.status(401).json({error}));
+      }
     })
     .catch(error => res.status(404).json({ message : 'book non trouvé '}));
      
