@@ -36,15 +36,14 @@ exports.rating = (req, res, next) => {
       }
       let sum = notes.reduce(check);
       let avg = Math.round(sum / notes.length);
-      book.averageRating = avg
-
-      Book.updateOne({_id: req.params.id}, {ratings: book.ratings}, {averageRating: book.averageRating})
+     
+      Book.updateOne({_id: req.params.id}, {averageRating: avg, ratings: book.ratings})
           .then (() => res.status(200).json(book))
           .catch(error => res.status(401).json({error}));
       }
     })
     .catch(error => res.status(404).json({ message : 'book non trouvé '}));
-     
+   
 };
 
 exports.bestrating = (req, res, next) => {
