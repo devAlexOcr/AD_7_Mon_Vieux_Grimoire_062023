@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
-// const helmet = require('helmet')
+const helmet = require('helmet')
 
 require('dotenv').config()
 
@@ -14,7 +14,11 @@ mongoose.connect(`${process.env.MONGOOSE}`,
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 const app = express();
-// app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
 app.use(express.json());
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
