@@ -21,7 +21,7 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
-    User.findOne({email: req.body.email})
+    User.findOne({email: req.body.email.toLowerCase()})
         .then( user => {
             if (!user) {
                 res.status(401).json({message: 'Paire identifiant / password incorrect'})
