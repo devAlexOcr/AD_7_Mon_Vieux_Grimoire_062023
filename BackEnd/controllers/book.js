@@ -1,5 +1,9 @@
 const Book = require('../models/Book.js')
+
 const fs = require('fs')
+const sharp = require ('sharp')
+
+
 
 exports.rating = (req, res, next) => {
   Book.findOne({_id: req.params.id})
@@ -11,7 +15,7 @@ exports.rating = (req, res, next) => {
       
       // permet de verifier la presence d'un utilisateur dans le tableau ratings et renvoie un boolean
       const userVerify = userRated.includes(req.auth.userId)
-      console.log(userVerify)
+
 
       if (userVerify == false) {
       const NewRating = {
@@ -61,25 +65,50 @@ exports.bestrating = (req, res, next) => {
   .catch(error => res.status(400).json({error})); 
 }
 
-exports.createBook = (req, res, next) => {  
+exports.createBook =   async (req, res, next) => {  
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
+  // verification et création du dosier de sortie pour sharp
+  fs.access('./images', (error) => {
+    if (error) {
+      fs.mkdirSync('./images');
+    }
+  });
+  // optimisation de l'image par sharp
+  const {buffer, originalname} = req.file
+  const name = originalname.split(' ').join('_');
+  const ref = `${Date.now()}-${name}.webp`;
+  await sharp(buffer)
+    .webp({ quality: 20 })
+    .toFile('./images/' + ref);
+    const link = `${req.protocol}://${req.get('host')}/images/${ref}`;
+
   const NewBook = new Book({
     ...bookObject,
     userId: req.auth.userId,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    imageUrl: link
   });
+
   NewBook.save()
     .then(() => res.status(201).json({message: 'Objet enregistre !'}))
     .catch(error => res.status(400).json({ error }));
 };
 
-exports.modifyBook = (req, res, next) => {
+exports.modifyBook =  async (req, res, next) => {
+
+  const {buffer, originalname} = req.file
+  const name = originalname.split(' ').join('_');
+  const ref = `${Date.now()}-${name}.webp`;
+  await sharp(buffer)
+    .webp({ quality: 20 })
+    .toFile('./images/' + ref);
+    const link = `${req.protocol}://${req.get('host')}/images/${ref}`;
+
   const bookObject = req.file ? {
     ...JSON.parse(req.body.book),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  } : {...req.body};
+    imageUrl: link
+  } : {...req.body};    
   delete bookObject._userId;
   Book.findOne({_id: req.params.id})
     .then((book) => {
