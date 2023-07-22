@@ -1,7 +1,7 @@
 const Book = require('../models/Book.js')
 
 const fs = require('fs')
-const sharp = require ('sharp')
+// const sharp = require ('sharp')
 
 
 
@@ -70,19 +70,19 @@ exports.createBook =   async (req, res, next) => {
   delete bookObject._id;
   delete bookObject._userId;
   // verification et création du dosier de sortie pour sharp
-  fs.access('./images', (error) => {
-    if (error) {
-      fs.mkdirSync('./images');
-    }
-  });
-  // optimisation de l'image par sharp
-  const {buffer, originalname} = req.file
-  const name = originalname.split(' ').join('_');
-  const ref = `${Date.now()}-${name}.webp`;
-  await sharp(buffer)
-    .webp({ quality: 20 })
-    .toFile('./images/' + ref);
-    const link = `${req.protocol}://${req.get('host')}/images/${ref}`;
+  // fs.access('./images', (error) => {
+  //   if (error) {
+  //     fs.mkdirSync('./images');
+  //   }
+  // });
+  // // optimisation de l'image par sharp
+  // const {buffer, originalname} = req.file
+  // const name = originalname.split(' ').join('_');
+  // const ref = `${Date.now()}-${name}.webp`;
+  // await sharp(buffer)
+  //   .webp({ quality: 20 })
+  //   .toFile('./images/' + ref);
+  //   const link = `${req.protocol}://${req.get('host')}/images/${ref}`;
 
   const NewBook = new Book({
     ...bookObject,
@@ -96,20 +96,39 @@ exports.createBook =   async (req, res, next) => {
 };
 
 exports.modifyBook =  async (req, res, next) => {
+  console.log(req.file)
+  const {originalname, mimetype} = req.file;
 
-  const {buffer, originalname} = req.file
-  const name = originalname.split(' ').join('_');
-  const ref = `${Date.now()}-${name}.webp`;
-  await sharp(buffer)
-    .webp({ quality: 20 })
-    .toFile('./images/' + ref);
-    const link = `${req.protocol}://${req.get('host')}/images/${ref}`;
+  const mimeTypesArray = [
+    'image/jpg',
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ];
 
+  const mimeTypeVerify = mimeTypesArray.includes(mimetype) 
+  // gestion de l'envoie du mauvais type de fichier
+  if (mimeTypeVerify == false) {
+      return res.status(410).json({message : 'format image non supporté'})
+  } else {
+    // verification de la presence du dossier de sortie et creation si necessaire
+      fs.access('./images', (error) => {
+          if (error) {
+            fs.mkdirSync('./images');
+          }
+        });
+        // standardisation du nom pour le rendre unique 
+      const name = originalname.split(' ').join('_');
+      const ref = `${Date.now()}-${name}.webp`;
+  }
+      const link = `${req.protocol}://${req.get('host')}/${req.file.path}`;
+        
   const bookObject = req.file ? {
     ...JSON.parse(req.body.book),
     imageUrl: link
   } : {...req.body};    
   delete bookObject._userId;
+
   Book.findOne({_id: req.params.id})
     .then((book) => {
       if (book.userId != req.auth.userId) {
