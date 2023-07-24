@@ -1,9 +1,28 @@
 const Book = require('../models/Book.js')
-
 const fs = require('fs')
-// const sharp = require ('sharp')
 
+function uploadFile(req) {
+  const { mimetype } = req.file;
+  const mimeTypesArray = [
+    'image/jpg',
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ];
 
+  const mimeTypeVerify = mimeTypesArray.includes(mimetype) 
+  // gestion de l'envoie du mauvais type de fichier
+  if (mimeTypeVerify == false) {
+      return res.status(410).json({message : 'format image non supporté'})
+  } else {
+    // verification de la presence du dossier de sortie et creation si necessaire
+      fs.access('./images', (error) => {
+          if (error) {
+            fs.mkdirSync('./images');
+          }
+        });
+      return link = `${req.protocol}://${req.get('host')}/${req.file.path}`;
+  }};
 
 exports.rating = (req, res, next) => {
   Book.findOne({_id: req.params.id})
@@ -74,21 +93,7 @@ exports.createBook =   async (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
-  // verification et création du dosier de sortie pour sharp
-  // fs.access('./images', (error) => {
-  //   if (error) {
-  //     fs.mkdirSync('./images');
-  //   }
-  // });
-  // // optimisation de l'image par sharp
-  // const {buffer, originalname} = req.file
-  // const name = originalname.split(' ').join('_');
-  // const ref = `${Date.now()}-${name}.webp`;
-  // await sharp(buffer)
-  //   .webp({ quality: 20 })
-  //   .toFile('./images/' + ref);
-  //   const link = `${req.protocol}://${req.get('host')}/images/${ref}`;
-
+  uploadFile(req)
   const NewBook = new Book({
     ...bookObject,
     userId: req.auth.userId,
@@ -101,33 +106,7 @@ exports.createBook =   async (req, res, next) => {
 };
 
 exports.modifyBook =  async (req, res, next) => {
-  console.log(req.file)
-  const {originalname, mimetype} = req.file;
-
-  const mimeTypesArray = [
-    'image/jpg',
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-  ];
-
-  const mimeTypeVerify = mimeTypesArray.includes(mimetype) 
-  // gestion de l'envoie du mauvais type de fichier
-  if (mimeTypeVerify == false) {
-      return res.status(410).json({message : 'format image non supporté'})
-  } else {
-    // verification de la presence du dossier de sortie et creation si necessaire
-      fs.access('./images', (error) => {
-          if (error) {
-            fs.mkdirSync('./images');
-          }
-        });
-        // standardisation du nom pour le rendre unique 
-      const name = originalname.split(' ').join('_');
-      const ref = `${Date.now()}-${name}.webp`;
-  }
-      const link = `${req.protocol}://${req.get('host')}/${req.file.path}`;
-        
+  uploadFile(req)    
   const bookObject = req.file ? {
     ...JSON.parse(req.body.book),
     imageUrl: link
