@@ -98,7 +98,7 @@ exports.createBook =   async (req, res, next) => {
   const link = uploadFile(req);
 
   if(link === false){
-    return res.status(410).json({message : 'format image non supporté'})
+    return  res.status(410).json({message: 'format image incorrect'})
   }
   const NewBook = new Book({
     ...bookObject,
@@ -114,7 +114,7 @@ exports.createBook =   async (req, res, next) => {
 exports.modifyBook =  async (req, res, next) => {
   const link = uploadFile(req);
   if(link === false){
-    return res.status(410).json({message : 'format image non supporté'})
+    res.status(410).json({message : 'format image incorrect'})
   }    
   const bookObject = req.file ? {
     ...JSON.parse(req.body.book),
