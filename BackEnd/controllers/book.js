@@ -1,8 +1,9 @@
 const Book = require('../models/Book.js')
 const fs = require('fs')
 
-function uploadFile(req) {
+function uploadFile(req, res) {
   const { mimetype } = req.file;
+ 
   const mimeTypesArray = [
     'image/jpg',
     'image/jpeg',
@@ -12,8 +13,9 @@ function uploadFile(req) {
 
   const mimeTypeVerify = mimeTypesArray.includes(mimetype) 
   // gestion de l'envoie du mauvais type de fichier
-  if (mimeTypeVerify == false) {
-      return res.status(410).json({message : 'format image non supporté'})
+
+  if (mimeTypeVerify === false) {
+    return false
   } else {
     // verification de la presence du dossier de sortie et creation si necessaire
       fs.access('./images', (error) => {
@@ -21,7 +23,7 @@ function uploadFile(req) {
             fs.mkdirSync('./images');
           }
         });
-      return link = `${req.protocol}://${req.get('host')}/${req.file.path}`;
+        return `${req.protocol}://${req.get('host')}/${req.file.path}`;
   }};
 
 exports.rating = (req, res, next) => {
@@ -62,9 +64,8 @@ exports.rating = (req, res, next) => {
       book.averageRating = avg
      
       Book.updateOne({_id: req.params.id}, {averageRating: avg, ratings: book.ratings})
-      
           .then (() => {
-          console.log(book)
+
            res.status(200).json(book)
           })
           .catch(error => res.status(401).json({error}));
@@ -93,7 +94,12 @@ exports.createBook =   async (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
-  uploadFile(req)
+
+  const link = uploadFile(req);
+
+  if(link === false){
+    return res.status(410).json({message : 'format image non supporté'})
+  }
   const NewBook = new Book({
     ...bookObject,
     userId: req.auth.userId,
@@ -106,7 +112,10 @@ exports.createBook =   async (req, res, next) => {
 };
 
 exports.modifyBook =  async (req, res, next) => {
-  uploadFile(req)    
+  const link = uploadFile(req);
+  if(link === false){
+    return res.status(410).json({message : 'format image non supporté'})
+  }    
   const bookObject = req.file ? {
     ...JSON.parse(req.body.book),
     imageUrl: link
