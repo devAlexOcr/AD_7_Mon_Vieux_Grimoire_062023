@@ -98,7 +98,7 @@ exports.createBook =   async (req, res, next) => {
   const link = uploadFile(req);
 
   if(link === false){
-    return  res.status(410).json({message: 'format image incorrect'})
+    return  res.status(410).json({message : 'format image incorrect'})
   }
   const NewBook = new Book({
     ...bookObject,
