@@ -31,7 +31,7 @@ exports.rating = (req, res, next) => {
     .then((book) => {
       // creation d'un tableau regroupant les differents users qui ont notés le livre
       const userRated = book.ratings.map(verify => {
-        return verify.userId
+        return verify.userIds
       });
       
       // permet de verifier la presence d'un utilisateur dans le tableau ratings et renvoie un boolean
@@ -99,7 +99,7 @@ exports.createBook =   async (req, res, next) => {
 
   if(link === false){
     return  res.status(410).json({message : 'format image incorrect'})
-  }
+  }else{
   const NewBook = new Book({
     ...bookObject,
     userId: req.auth.userId,
@@ -109,13 +109,14 @@ exports.createBook =   async (req, res, next) => {
   NewBook.save()
     .then(() => res.status(201).json({message: 'Objet enregistre !'}))
     .catch(error => res.status(400).json({ error }));
+}
 };
 
 exports.modifyBook =  async (req, res, next) => {
   const link = uploadFile(req);
   if(link === false){
     res.status(410).json({message : 'format image incorrect'})
-  }    
+  }else{
   const bookObject = req.file ? {
     ...JSON.parse(req.body.book),
     imageUrl: link
@@ -133,6 +134,7 @@ exports.modifyBook =  async (req, res, next) => {
       }
     })
     .catch(error => res.status(400).json({error}))
+  }
   };
 
   exports.deleteBook = (req, res, next) => {
